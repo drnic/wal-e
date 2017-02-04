@@ -117,7 +117,7 @@ class SegmentNumber(collections.namedtuple('SegmentNumber',
 
 OBSOLETE_VERSIONS = frozenset(('004', '003', '002', '001', '000'))
 
-SUPPORTED_STORE_SCHEMES = ('s3', 'wabs', 'swift', 'gs')
+SUPPORTED_STORE_SCHEMES = ('s3', 'wabs', 'swift', 'gs', 'file')
 
 
 # Exhaustively enumerates all possible metadata about a backup.  These
@@ -213,6 +213,19 @@ class StorageLayout(object):
     >>> sl.store_name()
     'foo'
 
+    Local File:
+
+    Without a trailing slash
+    >>> sl = StorageLayout('file:///tmp/foo/bar')
+    >>> sl.is_files
+    True
+    >>> sl.basebackups()
+    'bar/basebackups_005/'
+    >>> sl.wal_directory()
+    'bar/wal_005/'
+    >>> sl.store_name()
+    'foo'
+
     """
 
     def __init__(self, prefix, version=CURRENT_VERSION):
@@ -222,10 +235,10 @@ class StorageLayout(object):
 
         if url_tup.scheme not in SUPPORTED_STORE_SCHEMES:
             raise wal_e.exception.UserException(
-                msg='bad S3, Windows Azure Blob Storage, OpenStack Swift, or '
-                    'Google Cloud Storage URL scheme passed',
-                detail='The scheme {0} was passed when "s3", "wabs", '
-                       '"swift", or "gs" was expected.'.format(url_tup.scheme))
+                msg='bad S3, Windows Azure Blob Storage, OpenStack Swift, '
+                    'Google Cloud Storage URL or Local File scheme passed',
+                detail='The scheme {0} was passed when "s3", "wabs", "swift", '
+                       '"gs" or "file" was expected.'.format(url_tup.scheme))
 
         for scheme in SUPPORTED_STORE_SCHEMES:
             setattr(self, 'is_%s' % scheme, scheme == url_tup.scheme)
