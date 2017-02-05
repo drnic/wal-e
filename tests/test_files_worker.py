@@ -11,7 +11,7 @@ from files_integration_help import (
 def test_empty_latest_listing():
     """Test listing a 'backup-list LATEST' on an empty prefix."""
     folder_name = 'wal-e-test-empty-listing'
-    layout = storage.StorageLayout('file://{0}/test-prefix'
+    layout = storage.StorageLayout('files://{0}/test-prefix'
                                    .format(folder_name))
 
     with FreshFolder(folder_name) as folder:
