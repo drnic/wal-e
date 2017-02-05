@@ -88,15 +88,16 @@ class BackupList(_BackupList):
         class Key:
             def __init__(self, file_path):
                 self.name = str(file_path)
-                self.last_modified = getmtime(file_path)
+                self.last_modified = getmtime(self.name)
 
         return map(Key, Path(prefix).glob("**/*"))
 
 
 class DeleteFromContext(_DeleteFromContext):
+    # TODO DeleteFromContext
 
-    def __init__(self, gs_conn, layout, dry_run):
-        super(DeleteFromContext, self).__init__(gs_conn, layout, dry_run)
+    def __init__(self, files_conn, layout, dry_run):
+        super(DeleteFromContext, self).__init__(files_conn, layout, dry_run)
 
         if not dry_run:
             self.deleter = Deleter()
