@@ -10,6 +10,9 @@ class Deleter(_Deleter):
 
     @retries.retry()
     def _delete_batch(self, page):
+        # TODO files.Deleter._delete_batch
+        print("_delete_batch", page)
         for blob in page:
             # TODO delete file from parent folder
+            print("_delete_batch.blob", blob)
             pass
