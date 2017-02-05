@@ -38,6 +38,11 @@ def uri_put_file(creds, uri, fp, content_type=None):
     return getsize(dst_path)
 
 
+def uri_get_file(creds, url, conn=None):
+    src_path = urlparse(url).path
+    return open(src_path, "r")
+
+
 def do_lzop_get(creds, url, path, decrypt, do_retry=True):
     """
     Get and decompress a Local Files URL
