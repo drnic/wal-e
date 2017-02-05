@@ -49,7 +49,7 @@ def uri_get_file(creds, url, conn=None):
         detail='getting {src_path}'
         .format(src_path=src_path))
 
-    return open(src_path, "r")
+    return open(src_path, "r").read()
 
 
 def do_lzop_get(creds, url, path, decrypt, do_retry=True):
