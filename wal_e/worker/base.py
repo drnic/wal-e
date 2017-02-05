@@ -114,7 +114,6 @@ class _BackupList(object):
           recent modification date
 
         """
-
         match = re.match(storage.BASE_BACKUP_REGEXP, query)
 
         if match is not None:

@@ -21,9 +21,6 @@ def uri_put_file(creds, uri, fp, content_type=None):
     dst_path = urlparse(uri).path
     Path(dirname(dst_path)).mkdir(0o777, True, True)
 
-    size = len(fp.read())
-    fp.seek(0)
-
     with open(dst_path, "wb") as dst:
         shutil.copyfileobj(fp, dst)
         dst.flush()

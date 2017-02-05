@@ -344,4 +344,7 @@ def get_backup_info(layout, **kwargs):
     elif layout.is_gs:
         from wal_e.storage.gs_storage import GSBackupInfo
         bi = GSBackupInfo(**kwargs)
+    elif layout.is_files:
+        from wal_e.storage.files_storage import FilesBackupInfo
+        bi = FilesBackupInfo(**kwargs)
     return bi
