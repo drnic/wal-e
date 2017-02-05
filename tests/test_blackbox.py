@@ -7,12 +7,14 @@ from blackbox import small_push_dir
 from gs_integration_help import default_test_gs_bucket
 from os import path
 from s3_integration_help import default_test_bucket
+from files_integration_help import default_test_folder
 from stage_pgxlog import pg_xlog
 
 # Quiet pyflakes about pytest fixtures.
 assert config
 assert default_test_bucket
 assert default_test_gs_bucket
+assert default_test_folder
 assert noop_pg_backup_statements
 assert pg_xlog
 assert small_push_dir

@@ -1,7 +1,18 @@
+import pytest
+
 from wal_e import log_help
 
 
 logger = log_help.WalELogger(__name__)
+
+
+def tmpdir_available():
+    return True
+
+
+@pytest.fixture(scope='session')
+def default_test_folder():
+    return "/tmp/wal-e-testing/files/default_test_folder"
 
 
 def apathetic_folder_delete(folder_name):
