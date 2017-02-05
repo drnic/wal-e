@@ -145,3 +145,4 @@ def test_backup_push_fetch(tmpdir, small_push_dir, monkeypatch, config,
 def test_delete_everything(config, small_push_dir, noop_pg_backup_statements):
     config.main('backup-push', str(small_push_dir))
     config.main('delete', '--confirm', 'everything')
+    assert False
