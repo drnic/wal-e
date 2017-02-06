@@ -156,7 +156,7 @@ class GsTestConfig(object):
 
 
 class LocalTestConfig(object):
-    name = 'files'
+    name = 'local'
 
     def __init__(self, request):
         self.env_vars = {}
@@ -170,6 +170,28 @@ class LocalTestConfig(object):
             self.monkeypatch.delenv(name, raising=False)
 
         self.monkeypatch.setenv('WALE_LOCAL_PREFIX', 'local://{0}/'
+                                .format(self.folder))
+
+    def main(self, *args):
+        self.monkeypatch.setattr(sys, 'argv', ['wal-e'] + list(args))
+        return cmd.main()
+
+
+class LocalTestConfig(object):
+    name = 'remote'
+
+    def __init__(self, request):
+        self.env_vars = {}
+        self.monkeypatch = request.getfuncargvalue('monkeypatch')
+        self.folder = request.getfuncargvalue('default_test_folder')
+
+    def patch(self, test_name):
+        # Scrub WAL-E prefixes left around in the user's environment to
+        # prevent unexpected results.
+        for name in _PREFIX_VARS:
+            self.monkeypatch.delenv(name, raising=False)
+
+        self.monkeypatch.setenv('WALE_REMOTE_PREFIX', 'remote://{0}/'
                                 .format(self.folder))
 
     def main(self, *args):

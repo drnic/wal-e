@@ -18,4 +18,7 @@ def get_blobstore(layout):
     elif layout.is_local:
         from wal_e.blobstore import local
         blobstore = local
+    elif layout.is_remote:
+        from wal_e.blobstore import remote
+        blobstore = remote
     return blobstore
