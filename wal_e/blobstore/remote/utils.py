@@ -1,9 +1,8 @@
 # import gevent
 import shutil
 
-# from pathlib import Path
-# from urllib.parse import urlparse
-from os.path import getsize
+from urllib.parse import urlparse
+from os.path import dirname
 import subprocess
 import tempfile
 
@@ -19,26 +18,29 @@ def uri_put_file(creds, uri, fp, content_type=None):
     assert fp.tell() == 0
     assert uri.startswith('remote://')
 
-    with tempfile.NamedTemporaryFile() as tmpfile:
-        shutil.copyfileobj(fp, tmpfile)
-        tmpfile.flush()
-        local_file_size = getsize(tmpfile)
+    dst_path = urlparse(uri).path
+    dst_dir = dirname(dst_path)
 
-        # ssh/scp file to creds.host
-        proc = subprocess.Popen([
-            'ssh', '-i', creds.identity_file,
-            '%s@%s' % (creds.user, creds.host),
-            'cat > %s' % tmpfile], stdin=subprocess.PIPE)
+    # ssh/scp file to creds.host
+    proc = subprocess.Popen([
+        'ssh', '-i', creds.identity_file,
+        '%s@%s' % (creds.user, creds.host),
+        'mkdir -p %s && cat > %s' % (dst_dir, dst_path)], stdin=subprocess.PIPE)
 
-        proc.communicate(fp)
-        if proc.retcode != 0:
-            raise "failed to ssh upload contents"
+    try:
+        outs, errs = proc.communicate(input=fp.read(), timeout=15)
+    except TimeoutExpired:
+        proc.kill()
+        outs, errs = proc.communicate()
 
-        class FileWrapper:
-            def __init__(self, size):
-                self.size = size
+    if proc.returncode != 0:
+        raise SystemExit(proc.returncode)
 
-        return FileWrapper(local_file_size)
+    class FileWrapper:
+        def __init__(self, size):
+            self.size = size
+
+    return FileWrapper(100)
 
 
 def uri_get_file(creds, url, conn=None):

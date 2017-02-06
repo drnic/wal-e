@@ -13,7 +13,7 @@ def no_real_remote_credentials():
             os.getenv('WALE_REMOTE_INTEGRATION_TESTS')) is not True:
         return True
 
-    if os.getenv('REMOTE_PRIVATE_KEY') is None:
+    if os.getenv('REMOTE_IDENTITY_FILE') is None:
         return True
 
     return False
