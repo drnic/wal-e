@@ -35,8 +35,8 @@ class TarPartitionLister(object):
         prefix = '/' + self.layout.basebackup_tar_partition_directory(
             self.backup_info)
 
-        for file in Path(prefix).glob("**/*"):
-            file_last_part = file.name.rsplit('/', 1)[-1]
+        for file_ref in self.remote_conn.list_files(prefix):
+            file_last_part = file_ref.name.rsplit('/', 1)[-1]
             match = re.match(storage.VOLUME_REGEXP, file_last_part)
             if match is None:
                 logger.warning(
@@ -49,15 +49,15 @@ class TarPartitionLister(object):
 
 
 class BackupFetcher(object):
-    def __init__(self, gs_conn, layout, backup_info, remote_root, decrypt):
-        self.gs_conn = gs_conn
+    def __init__(self, remote_conn, layout, backup_info, local_root, decrypt):
+        self.remote_conn = remote_conn
         self.layout = layout
-        self.remote_root = remote_root
+        self.local_root = local_root
         self.backup_info = backup_info
         self.decrypt = decrypt
 
     def fetch_partition(self, partition_name):
-        part_abs_path = '/' + self.layout.basebackup_tar_partition(
+        part_abs_path = self.layout.basebackup_tar_partition(
             self.backup_info, partition_name)
 
         logger.info(
@@ -66,10 +66,16 @@ class BackupFetcher(object):
             .format(partition_name),
             hint='The absolute file path is {0}.'.format(part_abs_path))
 
+        uri = 'remote://{netloc}/{path}'.format(netloc=self.layout.store_name(),
+                                            path=part_abs_path)
         with get_download_pipeline(PIPE, PIPE, self.decrypt) as pl:
-            g = gevent.spawn(remote.write_and_return_error, part_abs_path,
+            # remote.write_and_return_error(uri, self.remote_conn, pl.stdin)
+            g = gevent.spawn(remote.write_and_return_error,
+                             self.remote_conn,
+                             uri,
                              pl.stdin)
-            TarPartition.tarfile_extract(pl.stdout, self.remote_root)
+            print("TarPartition.tarfile_extract", self.local_root, uri)
+            TarPartition.tarfile_extract(pl.stdout, self.local_root)
 
             # Raise any exceptions guarded by write_and_return_error.
             exc = g.get()
@@ -79,18 +85,9 @@ class BackupFetcher(object):
 
 class BackupList(_BackupList):
 
-    def _backup_detail(self, key):
-        return key.get_contents_as_string()
-
     def _backup_list(self, prefix):
         prefix = '/' + prefix
-
-        class Key:
-            def __init__(self, file_path):
-                self.name = str(file_path)
-                self.last_modified = getmtime(self.name)
-
-        return map(Key, Path(prefix).glob("**/*"))
+        return self.conn.list_files(prefix)
 
 
 class DeleteFromContext(_DeleteFromContext):

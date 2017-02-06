@@ -49,8 +49,8 @@ class TarPartitionLister(object):
 
 
 class BackupFetcher(object):
-    def __init__(self, gs_conn, layout, backup_info, local_root, decrypt):
-        self.gs_conn = gs_conn
+    def __init__(self, conn, layout, backup_info, local_root, decrypt):
+        self.conn = conn
         self.layout = layout
         self.local_root = local_root
         self.backup_info = backup_info
@@ -67,7 +67,8 @@ class BackupFetcher(object):
             hint='The absolute file path is {0}.'.format(part_abs_path))
 
         with get_download_pipeline(PIPE, PIPE, self.decrypt) as pl:
-            g = gevent.spawn(local.write_and_return_error, part_abs_path,
+            g = gevent.spawn(local.write_and_return_error,
+                             part_abs_path,
                              pl.stdin)
             TarPartition.tarfile_extract(pl.stdout, self.local_root)
 

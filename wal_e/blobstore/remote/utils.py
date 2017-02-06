@@ -58,9 +58,13 @@ def do_lzop_get(creds, uri, path, decrypt, do_retry=True):
     assert uri.startswith('remote://')
 
     def download():
+        conn = calling_format.connect(creds)
         with files.DeleteOnError(path) as decomp_out:
             with get_download_pipeline(PIPE, decomp_out.f, decrypt) as pl:
-                g = gevent.spawn(write_and_return_error, creds, uri, pl.stdin)
+                g = gevent.spawn(write_and_return_error,
+                                 conn,
+                                 uri,
+                                 pl.stdin)
 
                 try:
                     exc = g.get()
@@ -96,24 +100,24 @@ def uri_get_file(creds, uri, conn=None):
 
     if conn is None:
         conn = calling_format.connect(creds)
-    return conn.get_file(object_path)
+    return conn.get_file(object_path).read()
 
-def write_and_return_error(creds, uri, stream):
-    resp_chunk_size = 8192
+# resp_chunk_size = 8192
+# response.seek(0)
+# chunk = response.read(resp_chunk_size)
+# while True:
+#     try:
+#         chunk = response.read(resp_chunk_size)
+#         stream.write(chunk)
+#     except EOFError:
+#         break
+
+def write_and_return_error(conn, uri, stream):
     try:
-        response = uri_get_file(creds, uri, None)
-        stream.write(response.read())
-
-        # chunk = response.read(resp_chunk_size)
-        # response.seek(0)
-        # while True:
-        #     try:
-        #         chunk = response.read(resp_chunk_size)
-        #         stream.write(chunk)
-        #     except EOFError:
-        #         break
-
+        contents = uri_get_file(None, uri, conn)
+        stream.write(contents)
         stream.flush()
+
     except Exception as e:
         return e
     finally:
