@@ -185,7 +185,7 @@ class RemoteTestConfig(object):
     def __init__(self, request):
         self.env_vars = {}
         self.monkeypatch = request.getfuncargvalue('monkeypatch')
-        self.folder = request.getfuncargvalue('default_test_folder')
+        self.remote_server = request.getfuncargvalue('test_remote_server')
 
         for name in _REMOTE_CRED_ENV_VARS:
             maybe_value = os.getenv(name)
@@ -198,7 +198,7 @@ class RemoteTestConfig(object):
             self.monkeypatch.delenv(name, raising=False)
 
         self.monkeypatch.setenv('WALE_REMOTE_PREFIX', 'remote://{0}/'
-                                .format(self.folder))
+                                .format(self.remote_server))
 
     def main(self, *args):
         self.monkeypatch.setattr(sys, 'argv', ['wal-e'] + list(args))

@@ -15,8 +15,8 @@ def local_integration_tests_enabled():
 
     Phrased in the negative to make it read better with 'skipif'.
     """
-    return parse_boolean_envvar(
-            os.getenv('WALE_LOCAL_INTEGRATION_TESTS'))
+    return parse_boolean_envvar(os.getenv('WALE_LOCAL_INTEGRATION_TESTS'))
+
 
 @pytest.fixture(scope='session')
 def default_test_folder():

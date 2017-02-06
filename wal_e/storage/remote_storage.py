@@ -10,7 +10,6 @@ class RemoteBackupInfo(BackupInfo):
         if self._details_loaded:
             return
 
-        # TODO is this remote:// schema?
         uri = "{scheme}://{netloc}/{path}".format(
             scheme=self.layout.scheme,
             netloc=self.layout.store_name(),
