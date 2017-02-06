@@ -11,9 +11,9 @@ class RemoteBackupInfo(BackupInfo):
             return
 
         # TODO is this remote:// schema?
-        uri = "{scheme}://{folder}/{path}".format(
+        uri = "{scheme}://{netloc}/{path}".format(
             scheme=self.layout.scheme,
-            folder=self.layout.store_name(),
+            netloc=self.layout.store_name(),
             path=self.layout.basebackup_sentinel(self))
 
         data = json.loads(remote.uri_get_file(None, uri, conn=conn)

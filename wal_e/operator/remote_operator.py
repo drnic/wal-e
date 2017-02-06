@@ -10,8 +10,8 @@ class RemoteBackup(Backup):
     A performs copies of PostgreSQL WAL files to remote server's file system
 
     """
-    def __init__(self, layout, gpg_key_id):
-        super(RemoteBackup, self).__init__(layout, None, gpg_key_id)
+    def __init__(self, layout, creds, gpg_key_id):
+        super(RemoteBackup, self).__init__(layout, creds, gpg_key_id)
         url_tup = urlparse(layout.prefix)
         print(url_tup)
         self.url_tup = url_tup

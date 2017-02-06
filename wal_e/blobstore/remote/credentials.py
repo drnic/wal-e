@@ -1,3 +1,5 @@
 class Credentials(object):
-    # TODO credentials for remote server are username + private key
-    pass
+    def __init__(self, user, identity_file, host):
+        self.user = user
+        self.identity_file = identity_file
+        self.host = host

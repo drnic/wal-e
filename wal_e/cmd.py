@@ -553,8 +553,15 @@ def configure_backup_cxt(args):
         from wal_e.operator.local_operator import LocalBackup
         return LocalBackup(store, gpg_key_id)
     elif store.is_remote:
+        from wal_e.blobstore import remote
         from wal_e.operator.remote_operator import RemoteBackup
-        return RemoteBackup(store, gpg_key_id)
+        creds = remote.Credentials(
+            os.getenv('REMOTE_USER'),
+            os.getenv('REMOTE_IDENTITY_FILE'),
+            os.getenv('REMOTE_HOST'),
+        )
+
+        return RemoteBackup(store, creds, gpg_key_id)
     else:
         raise UserCritical(
             msg='no unsupported blob stores should get here',

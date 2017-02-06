@@ -17,7 +17,3 @@ def no_real_remote_credentials():
         return True
 
     return False
-
-@pytest.fixture(scope='session')
-def default_test_remote_server():
-    return None
