@@ -21,11 +21,13 @@ def uri_put_file(creds, uri, fp, content_type=None):
     dst_dir = dirname(dst_path)
 
     # ssh/scp file to creds.host
+    host = '%s@%s' % (creds.user, creds.host)
+    # stat -f %z returns the file size, which is wrapped in FileWrapper
+    cmd = 'mkdir -p %s && cat > %s && ' \
+        'stat -f "%%z" %s' % (dst_dir, dst_path, dst_path)
     proc = subprocess.Popen([
         'ssh', '-i', creds.identity_file,
-        '%s@%s' % (creds.user, creds.host),
-        'mkdir -p %s && cat > %s' % (dst_dir, dst_path)],
-                            stdin=subprocess.PIPE)
+        host, cmd], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
     try:
         outs, errs = proc.communicate(input=fp.read(), timeout=15)
@@ -40,7 +42,7 @@ def uri_put_file(creds, uri, fp, content_type=None):
         def __init__(self, size):
             self.size = size
 
-    return FileWrapper(100)
+    return FileWrapper(int.from_bytes(outs, byteorder='big'))
 
 
 def uri_get_file(creds, url, conn=None):
