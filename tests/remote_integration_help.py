@@ -21,4 +21,4 @@ def no_real_remote_credentials():
 
 @pytest.fixture(scope='session')
 def test_remote_server():
-    return "localhost"
+    return "localhost/tmp/wal-e-testing/storage"
