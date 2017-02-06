@@ -9,9 +9,6 @@ with the intention that they are used in gevent greenlets.
 import gevent
 import re
 
-from pathlib import Path
-from os.path import getmtime
-
 from wal_e import log_help
 from wal_e import storage
 from wal_e.blobstore import remote
@@ -44,6 +41,7 @@ class TarPartitionLister(object):
                     detail=('The unexpected key is stored at "{0}".'
                             .format(file_last_part)),
                     hint=generic_weird_key_hint_message)
+
             else:
                 yield file_last_part
 
@@ -66,8 +64,8 @@ class BackupFetcher(object):
             .format(partition_name),
             hint='The absolute file path is {0}.'.format(part_abs_path))
 
-        uri = 'remote://{netloc}/{path}'.format(netloc=self.layout.store_name(),
-                                            path=part_abs_path)
+        uri = 'remote://{host}/{path}'.format(host=self.layout.store_name(),
+                                              path=part_abs_path)
         with get_download_pipeline(PIPE, PIPE, self.decrypt) as pl:
             # remote.write_and_return_error(uri, self.remote_conn, pl.stdin)
             g = gevent.spawn(remote.write_and_return_error,
