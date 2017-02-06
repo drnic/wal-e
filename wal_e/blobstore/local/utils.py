@@ -16,7 +16,7 @@ logger = log_help.WalELogger(__name__)
 
 def uri_put_file(creds, uri, fp, content_type=None):
     assert fp.tell() == 0
-    assert uri.startswith('files://')
+    assert uri.startswith('local://')
 
     dst_path = urlparse(uri).path
     Path(dirname(dst_path)).mkdir(0o777, True, True)
@@ -55,7 +55,7 @@ def do_lzop_get(creds, url, path, decrypt, do_retry=True):
 
     """
     assert url.endswith('.lzo'), 'Expect an lzop-compressed file'
-    assert url.startswith('files://')
+    assert url.startswith('local://')
 
     def download():
         with files.DeleteOnError(path) as decomp_out:

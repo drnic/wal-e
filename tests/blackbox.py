@@ -2,13 +2,13 @@ import gs_integration_help
 import os
 import pytest
 import s3_integration_help
-import files_integration_help
+import local_integration_help
 import sys
 
 from wal_e import cmd
 
 _PREFIX_VARS = ['WALE_S3_PREFIX', 'WALE_WABS_PREFIX', 'WALE_SWIFT_PREFIX',
-                'WALE_FILES_PREFIX']
+                'WALE_LOCAL_PREFIX']
 
 _AWS_CRED_ENV_VARS = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY',
                       'AWS_SECURITY_TOKEN', 'AWS_REGION']
@@ -155,7 +155,7 @@ class GsTestConfig(object):
         return cmd.main()
 
 
-class FilesTestConfig(object):
+class LocalTestConfig(object):
     name = 'files'
 
     def __init__(self, request):
@@ -169,7 +169,7 @@ class FilesTestConfig(object):
         for name in _PREFIX_VARS:
             self.monkeypatch.delenv(name, raising=False)
 
-        self.monkeypatch.setenv('WALE_FILES_PREFIX', 'files://{0}/'
+        self.monkeypatch.setenv('WALE_LOCAL_PREFIX', 'local://{0}/'
                                 .format(self.folder))
 
     def main(self, *args):
@@ -195,8 +195,8 @@ def _make_fixture_param_and_ids():
     if not gs_integration_help.no_real_gs_credentials():
         _add_config(GsTestConfig)
 
-    if files_integration_help.tmpdir_available():
-        _add_config(FilesTestConfig)
+    if local_integration_help.tmpdir_available():
+        _add_config(LocalTestConfig)
 
     return ret
 

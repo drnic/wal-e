@@ -14,20 +14,20 @@ from os.path import getmtime
 
 from wal_e import log_help
 from wal_e import storage
-from wal_e.blobstore import files
+from wal_e.blobstore import local
 from wal_e.pipeline import get_download_pipeline
 from wal_e.piper import PIPE
 from wal_e.tar_partition import TarPartition
 from wal_e.worker.base import _BackupList, _DeleteFromContext
 from wal_e.worker.base import generic_weird_key_hint_message
-from wal_e.worker.files.files_deleter import Deleter
+from wal_e.worker.local.local_deleter import Deleter
 
 logger = log_help.WalELogger(__name__)
 
 
 class TarPartitionLister(object):
-    def __init__(self, files_conn, layout, backup_info):
-        self.files_conn = files_conn
+    def __init__(self, local_conn, layout, backup_info):
+        self.local_conn = local_conn
         self.layout = layout
         self.backup_info = backup_info
 
@@ -67,7 +67,7 @@ class BackupFetcher(object):
             hint='The absolute file path is {0}.'.format(part_abs_path))
 
         with get_download_pipeline(PIPE, PIPE, self.decrypt) as pl:
-            g = gevent.spawn(files.write_and_return_error, part_abs_path,
+            g = gevent.spawn(local.write_and_return_error, part_abs_path,
                              pl.stdin)
             TarPartition.tarfile_extract(pl.stdout, self.local_root)
 
@@ -96,8 +96,8 @@ class BackupList(_BackupList):
 class DeleteFromContext(_DeleteFromContext):
     # TODO DeleteFromContext
 
-    def __init__(self, files_conn, layout, dry_run):
-        super(DeleteFromContext, self).__init__(files_conn, layout, dry_run)
+    def __init__(self, local_conn, layout, dry_run):
+        super(DeleteFromContext, self).__init__(local_conn, layout, dry_run)
 
         if not dry_run:
             self.deleter = Deleter()

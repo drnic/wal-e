@@ -1,10 +1,10 @@
 import json
 
-from wal_e.blobstore import files
+from wal_e.blobstore import local
 from wal_e.storage.base import BackupInfo
 
 
-class FilesBackupInfo(BackupInfo):
+class LocalBackupInfo(BackupInfo):
 
     def load_detail(self, conn):
         if self._details_loaded:
@@ -15,7 +15,7 @@ class FilesBackupInfo(BackupInfo):
             folder=self.layout.store_name(),
             path=self.layout.basebackup_sentinel(self))
 
-        data = json.loads(files.uri_get_file(None, uri, conn=conn)
+        data = json.loads(local.uri_get_file(None, uri, conn=conn)
                           .decode('utf-8'))
         for k, v in list(data.items()):
             setattr(self, k, v)

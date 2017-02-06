@@ -117,7 +117,7 @@ class SegmentNumber(collections.namedtuple('SegmentNumber',
 
 OBSOLETE_VERSIONS = frozenset(('004', '003', '002', '001', '000'))
 
-SUPPORTED_STORE_SCHEMES = ('s3', 'wabs', 'swift', 'gs', 'files')
+SUPPORTED_STORE_SCHEMES = ('s3', 'wabs', 'swift', 'gs', 'local')
 
 
 # Exhaustively enumerates all possible metadata about a backup.  These
@@ -216,8 +216,8 @@ class StorageLayout(object):
     Local Files:
 
     Without a trailing slash
-    >>> sl = StorageLayout('files:///tmp/foo/bar')
-    >>> sl.is_files
+    >>> sl = StorageLayout('local:///tmp/foo/bar')
+    >>> sl.is_local
     True
     >>> sl.basebackups()
     'bar/basebackups_005/'
@@ -238,7 +238,7 @@ class StorageLayout(object):
                 msg='bad S3, Windows Azure Blob Storage, OpenStack Swift, '
                     'Google Cloud Storage URL or Local File scheme passed',
                 detail='The scheme "{0}" was passed when "s3", "wabs", '
-                       '"swift",  "gs" or "files" was '
+                       '"swift",  "gs" or "local" was '
                        'expected.'.format(url_tup.scheme))
 
         for scheme in SUPPORTED_STORE_SCHEMES:
@@ -344,7 +344,7 @@ def get_backup_info(layout, **kwargs):
     elif layout.is_gs:
         from wal_e.storage.gs_storage import GSBackupInfo
         bi = GSBackupInfo(**kwargs)
-    elif layout.is_files:
-        from wal_e.storage.files_storage import FilesBackupInfo
-        bi = FilesBackupInfo(**kwargs)
+    elif layout.is_local:
+        from wal_e.storage.local_storage import LocalBackupInfo
+        bi = LocalBackupInfo(**kwargs)
     return bi

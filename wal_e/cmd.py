@@ -220,10 +220,10 @@ def build_parser():
                         'Can also be defined via environment variable '
                         'WALE_GS_PREFIX.')
 
-    parser.add_argument('--files-prefix',
+    parser.add_argument('--local-prefix',
                         help='Storage prefix to run all commands against. '
                         'Can also be defined via environment variable '
-                        'WALE_FILES_PREFIX.')
+                        'WALE_LOCAL_PREFIX.')
 
     parser.add_argument(
         '--gpg-key-id',
@@ -451,19 +451,19 @@ def gs_creds(args):
 def configure_backup_cxt(args):
     # Try to find some WAL-E prefix to store data in.
     prefix = (args.s3_prefix or args.wabs_prefix or args.gs_prefix
-              or args.files_prefix
+              or args.local_prefix
               or os.getenv('WALE_S3_PREFIX') or os.getenv('WALE_WABS_PREFIX')
               or os.getenv('WALE_GS_PREFIX') or os.getenv('WALE_SWIFT_PREFIX')
-              or os.getenv('WALE_FILES_PREFIX'))
+              or os.getenv('WALE_LOCAL_PREFIX'))
 
     if prefix is None:
         raise UserException(
             msg='no storage prefix defined',
             hint=(
                 'Either set one of the --wabs-prefix, --s3-prefix, '
-                '--gs-prefix, or --files-prefix options or define one of the '
+                '--gs-prefix, or --local-prefix options or define one of the '
                 'WALE_WABS_PREFIX, WALE_S3_PREFIX, WALE_SWIFT_PREFIX, '
-                'WALE_GS_PREFIX or WALE_FILES_PREFIX '
+                'WALE_GS_PREFIX or WALE_LOCAL_PREFIX '
                 'environment variables.'
             )
         )
@@ -542,9 +542,9 @@ def configure_backup_cxt(args):
     elif store.is_gs:
         from wal_e.operator.gs_operator import GSBackup
         return GSBackup(store, gpg_key_id)
-    elif store.is_files:
-        from wal_e.operator.files_operator import FilesBackup
-        return FilesBackup(store, gpg_key_id)
+    elif store.is_local:
+        from wal_e.operator.local_operator import LocalBackup
+        return LocalBackup(store, gpg_key_id)
     else:
         raise UserCritical(
             msg='no unsupported blob stores should get here',
