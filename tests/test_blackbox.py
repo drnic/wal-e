@@ -8,6 +8,7 @@ from gs_integration_help import default_test_gs_bucket
 from os import path
 from s3_integration_help import default_test_bucket
 from local_integration_help import default_test_folder
+from remote_integration_help import default_test_remote_server
 from stage_pgxlog import pg_xlog
 
 # Quiet pyflakes about pytest fixtures.

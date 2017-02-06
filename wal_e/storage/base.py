@@ -223,7 +223,8 @@ class StorageLayout(object):
         if url_tup.scheme not in SUPPORTED_STORE_SCHEMES:
             raise wal_e.exception.UserException(
                 msg='bad S3, Windows Azure Blob Storage, OpenStack Swift, '
-                    'Google Cloud Storage URL, Local or Remote File scheme passed',
+                    'Google Cloud Storage URL, Local or Remote File '
+                    'scheme passed',
                 detail='The scheme "{0}" was passed when "s3", "wabs", '
                        '"swift",  "gs", "local", "remote" was '
                        'expected.'.format(url_tup.scheme))

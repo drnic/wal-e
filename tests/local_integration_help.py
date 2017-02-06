@@ -1,16 +1,22 @@
+import os
 import pytest
 from shutil import rmtree
 from pathlib import Path
 
 from wal_e import log_help
+from wal_e.cmd import parse_boolean_envvar
 
 
 logger = log_help.WalELogger(__name__)
 
 
-def tmpdir_available():
-    return True
+def local_integration_tests_enabled():
+    """Helps skip integration tests without live credentials.
 
+    Phrased in the negative to make it read better with 'skipif'.
+    """
+    return parse_boolean_envvar(
+            os.getenv('WALE_LOCAL_INTEGRATION_TESTS'))
 
 @pytest.fixture(scope='session')
 def default_test_folder():

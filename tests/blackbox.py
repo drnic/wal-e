@@ -3,6 +3,7 @@ import os
 import pytest
 import s3_integration_help
 import local_integration_help
+import remote_integration_help
 import sys
 
 from wal_e import cmd
@@ -13,6 +14,7 @@ _PREFIX_VARS = ['WALE_S3_PREFIX', 'WALE_WABS_PREFIX', 'WALE_SWIFT_PREFIX',
 _AWS_CRED_ENV_VARS = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY',
                       'AWS_SECURITY_TOKEN', 'AWS_REGION']
 _GS_CRED_ENV_VARS = ['GOOGLE_APPLICATION_CREDENTIALS']
+_REMOTE_CRED_ENV_VARS = ['REMOTE_PRIVATE_KEY']
 
 
 class AwsTestConfig(object):
@@ -177,13 +179,17 @@ class LocalTestConfig(object):
         return cmd.main()
 
 
-class LocalTestConfig(object):
+class RemoteTestConfig(object):
     name = 'remote'
 
     def __init__(self, request):
         self.env_vars = {}
         self.monkeypatch = request.getfuncargvalue('monkeypatch')
         self.folder = request.getfuncargvalue('default_test_folder')
+
+        for name in _REMOTE_CRED_ENV_VARS:
+            maybe_value = os.getenv(name)
+            self.env_vars[name] = maybe_value
 
     def patch(self, test_name):
         # Scrub WAL-E prefixes left around in the user's environment to
@@ -217,7 +223,10 @@ def _make_fixture_param_and_ids():
     if not gs_integration_help.no_real_gs_credentials():
         _add_config(GsTestConfig)
 
-    if local_integration_help.tmpdir_available():
+    if not remote_integration_help.no_real_remote_credentials():
+        _add_config(RemoteTestConfig)
+
+    if local_integration_help.local_integration_tests_enabled():
         _add_config(LocalTestConfig)
 
     return ret
