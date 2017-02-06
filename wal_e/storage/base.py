@@ -335,4 +335,7 @@ def get_backup_info(layout, **kwargs):
     elif layout.is_local:
         from wal_e.storage.local_storage import LocalBackupInfo
         bi = LocalBackupInfo(**kwargs)
+    elif layout.is_remote:
+        from wal_e.storage.remote_storage import RemoteBackupInfo
+        bi = RemoteBackupInfo(**kwargs)
     return bi

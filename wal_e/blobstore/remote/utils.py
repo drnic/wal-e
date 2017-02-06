@@ -1,14 +1,15 @@
-# import gevent
-# import shutil
+import gevent
+import shutil
 
 from urllib.parse import urlparse
 from os.path import dirname
 import subprocess
 
-# from wal_e import files
+from wal_e import files
 from wal_e import log_help
-# from wal_e.pipeline import get_download_pipeline
-# from wal_e.piper import PIPE
+from wal_e.blobstore.remote import calling_format
+from wal_e.pipeline import get_download_pipeline
+from wal_e.piper import PIPE
 
 logger = log_help.WalELogger(__name__)
 
@@ -45,11 +46,7 @@ def uri_put_file(creds, uri, fp, content_type=None):
     return FileWrapper(int.from_bytes(outs, byteorder='big'))
 
 
-def uri_get_file(creds, url, conn=None):
-    raise NotImplementedError()
-
-
-def do_lzop_get(creds, url, path, decrypt, do_retry=True):
+def do_lzop_get(creds, uri, path, decrypt, do_retry=True):
     """
     Get and decompress a Remote Server URL
 
@@ -57,11 +54,67 @@ def do_lzop_get(creds, url, path, decrypt, do_retry=True):
     is never stored on disk.
 
     """
-    assert url.endswith('.lzo'), 'Expect an lzop-compressed file'
-    assert url.startswith('remote://')
+    assert uri.endswith('.lzo'), 'Expect an lzop-compressed file'
+    assert uri.startswith('remote://')
 
-    raise NotImplementedError()
+    def download():
+        with files.DeleteOnError(path) as decomp_out:
+            with get_download_pipeline(PIPE, decomp_out.f, decrypt) as pl:
+                g = gevent.spawn(write_and_return_error, creds, uri, pl.stdin)
+
+                try:
+                    exc = g.get()
+                    if exc is not None:
+                        raise exc
+                except FileNotFoundError as e:
+                    # Do not retry if the blob not present, this
+                    # can happen under normal situations.
+                    pl.abort()
+                    logger.warning(
+                        msg=('could no longer locate object while '
+                             'performing wal restore'),
+                        detail=('The absolute URI that could not be '
+                                'located is {url}.'.format(url=url)),
+                        hint=('This can be normal when Postgres is trying '
+                              'to detect what timelines are available '
+                              'during restoration.'))
+                    decomp_out.remove_regardless = True
+                    return False
+
+            logger.info(
+                msg='completed remote file fetch and decompression',
+                detail='File downloaded and decompressed "{uri}" to "{path}"'
+                .format(uri=uri, path=path))
+        return True
+
+    return download()
 
 
-def write_and_return_error(src_path, stream):
-    raise NotImplementedError()
+def uri_get_file(creds, uri, conn=None):
+    assert uri.startswith('remote://')
+    object_path = urlparse(uri).path
+
+    if conn is None:
+        conn = calling_format.connect(creds)
+    return conn.get_file(object_path)
+
+def write_and_return_error(creds, uri, stream):
+    resp_chunk_size = 8192
+    try:
+        response = uri_get_file(creds, uri, None)
+        stream.write(response.read())
+
+        # chunk = response.read(resp_chunk_size)
+        # response.seek(0)
+        # while True:
+        #     try:
+        #         chunk = response.read(resp_chunk_size)
+        #         stream.write(chunk)
+        #     except EOFError:
+        #         break
+
+        stream.flush()
+    except Exception as e:
+        return e
+    finally:
+        stream.close()

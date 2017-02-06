@@ -37,12 +37,6 @@ def uri_put_file(creds, uri, fp, content_type=None):
 
 def uri_get_file(creds, url, conn=None):
     src_path = urlparse(url).path
-
-    logger.info(
-        msg='uri_get_file',
-        detail='getting {src_path}'
-        .format(src_path=src_path))
-
     return open(src_path, "rb").read()
 
 
