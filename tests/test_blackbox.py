@@ -37,10 +37,8 @@ def test_wal_push_fetch(pg_xlog, tmpdir, config):
     config.main('wal-prefetch', path.dirname(str(download_file)), seg_name)
     assert tmpdir.join('.wal-e', 'prefetch', seg_name).check(file=1)
 
-    config.main('backup-list')
 
-
-def _test_wal_push_parallel(pg_xlog, config, monkeypatch):
+def test_wal_push_parallel(pg_xlog, config, monkeypatch):
     from wal_e.worker import upload
 
     old_info = upload.logger.info
@@ -94,7 +92,7 @@ def _test_wal_push_parallel(pg_xlog, config, monkeypatch):
         assert False
 
 
-def _test_wal_fetch_non_existent(tmpdir, config):
+def test_wal_fetch_non_existent(tmpdir, config):
     # Recall file and check for equality.
     download_file = tmpdir.join('TEST-DOWNLOADED')
 
@@ -104,9 +102,11 @@ def _test_wal_fetch_non_existent(tmpdir, config):
     assert e.value.code == 1
 
 
-def _test_backup_push_fetch(tmpdir, small_push_dir, monkeypatch, config,
-                            noop_pg_backup_statements):
+def test_backup_push_fetch(tmpdir, small_push_dir, monkeypatch, config,
+                           noop_pg_backup_statements):
     import wal_e.tar_partition
+
+    config.main('backup-list')
 
     # check that _fsync_files() is called with the right
     # arguments. There's a separate unit test in test_tar_hacks.py
@@ -145,7 +145,9 @@ def _test_backup_push_fetch(tmpdir, small_push_dir, monkeypatch, config,
         elif filename.check(link=1):
             assert str(filename) not in fsynced_files
 
+    config.main('backup-list')
 
-def _test_delete_everything(config, small_push_dir, noop_pg_backup_statements):
+
+def test_delete_everything(config, small_push_dir, noop_pg_backup_statements):
     config.main('backup-push', str(small_push_dir))
     config.main('delete', '--confirm', 'everything')

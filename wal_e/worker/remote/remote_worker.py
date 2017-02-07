@@ -72,7 +72,6 @@ class BackupFetcher(object):
                              self.remote_conn,
                              uri,
                              pl.stdin)
-            print("TarPartition.tarfile_extract", self.local_root, uri)
             TarPartition.tarfile_extract(pl.stdout, self.local_root)
 
             # Raise any exceptions guarded by write_and_return_error.
@@ -85,8 +84,6 @@ class BackupList(_BackupList):
 
     def _backup_list(self, prefix):
         prefix = '/' + prefix
-        # TODO I think this result needs a .find_all(query)
-        print("_backup_list", prefix)
         return self.conn.list_files(prefix)
 
 

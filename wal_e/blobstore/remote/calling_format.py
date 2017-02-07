@@ -76,12 +76,12 @@ class RemoteServerConnection:
             '/data/backups/basebackups_005/**/*': No such file or directory
         '''
 
-        print("list_files", prefix)
         # try both ubuntu then darwin flags
-        cmd = '[[ $(uname) == "Linux" ]] && ' \
-            'stat -c "%%n::%%s::%%Y" %s{,/**}/* || ' \
-            'stat -f "%%N::%%z::%%m" %s{,/**}/*' % (prefix, prefix)
-        print(cmd)
+        cmd = 'if [[ -d %s ]]; then ' \
+            '[[ $(uname) == "Linux" ]] && ' \
+            'stat -c "%%n::%%s::%%Y" %s**/* || ' \
+            'stat -f "%%N::%%z::%%m" %s**/*; ' \
+            'fi' % (prefix, prefix, prefix)
         with subprocess.Popen([
             'ssh',
             '-o', 'StrictHostKeyChecking=no',
@@ -98,12 +98,6 @@ class RemoteServerConnection:
                     self.name = items[0]
                     self.size = int(items[1])
                     self.last_modified = items[2]
-
-            print(files_info)
-            if len(files_info) > 0:
-                print(FileRef(files_info[0]).name)
-                print(FileRef(files_info[0]).size)
-                print(FileRef(files_info[0]).last_modified)
 
             return map(FileRef, files_info)
 
