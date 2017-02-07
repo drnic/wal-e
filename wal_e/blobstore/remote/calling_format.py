@@ -79,7 +79,7 @@ class RemoteServerConnection:
         print("list_files", prefix)
         # try both ubuntu then darwin flags
         cmd = '[[ $(uname) == "Linux" ]] && ' \
-            'stat -c "%%n::%%s::%%y" %s**/* || ' \
+            'stat -c "%%n::%%s::%%Y" %s**/* || ' \
             'stat -f "%%N::%%z::%%m" %s**/*' % (prefix, prefix)
         print(cmd)
         with subprocess.Popen([
@@ -92,6 +92,10 @@ class RemoteServerConnection:
             stdout = proc.stdout.read().decode()
             files_info = stdout.split('\n')[:-1]
             print(files_info)
+            if len(files_info) > 0:
+                print(FileRef(files_info).name)
+                print(FileRef(files_info).size)
+                print(FileRef(files_info).last_modified)
 
             class FileRef:
                 def __init__(self, file_info):
