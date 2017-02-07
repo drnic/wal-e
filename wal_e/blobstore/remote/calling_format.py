@@ -13,7 +13,6 @@ class RemoteServerConnection:
         proc = subprocess.Popen([
             'ssh',
             '-o', 'StrictHostKeyChecking=no',
-            '-o', 'UserKnownHostsFile=/dev/null',
             '-i', self.creds.identity_file,
             '-p', self.creds.port,
             self.user_host, cmd], stdout=subprocess.PIPE)
@@ -34,7 +33,6 @@ class RemoteServerConnection:
         with subprocess.Popen([
             'ssh',
             '-o', 'StrictHostKeyChecking=no',
-            '-o', 'UserKnownHostsFile=/dev/null',
             '-i', self.creds.identity_file,
             '-p', self.creds.port,
             self.user_host,
@@ -74,7 +72,6 @@ class RemoteServerConnection:
         with subprocess.Popen([
             'ssh',
             '-o', 'StrictHostKeyChecking=no',
-            '-o', 'UserKnownHostsFile=/dev/null',
             '-i', self.creds.identity_file,
             '-p', self.creds.port,
             self.user_host, cmd], stdout=subprocess.PIPE) as proc:
