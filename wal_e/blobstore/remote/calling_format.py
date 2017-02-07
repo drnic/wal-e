@@ -77,8 +77,6 @@ class RemoteServerConnection:
             self.user_host, cmd], stdout=subprocess.PIPE) as proc:
 
             stdout = proc.stdout.read().decode()
-            print(cmd)
-            print(stdout)
             files_info = stdout.split('\n')[:-1]
 
             class FileRef:
