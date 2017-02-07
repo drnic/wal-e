@@ -91,11 +91,6 @@ class RemoteServerConnection:
 
             stdout = proc.stdout.read().decode()
             files_info = stdout.split('\n')[:-1]
-            print(files_info)
-            if len(files_info) > 0:
-                print(FileRef(files_info).name)
-                print(FileRef(files_info).size)
-                print(FileRef(files_info).last_modified)
 
             class FileRef:
                 def __init__(self, file_info):
@@ -103,6 +98,12 @@ class RemoteServerConnection:
                     self.name = items[0]
                     self.size = int(items[1])
                     self.last_modified = items[2]
+
+            print(files_info)
+            if len(files_info) > 0:
+                print(FileRef(files_info).name)
+                print(FileRef(files_info).size)
+                print(FileRef(files_info).last_modified)
 
             return map(FileRef, files_info)
 
