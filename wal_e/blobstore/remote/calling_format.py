@@ -79,8 +79,8 @@ class RemoteServerConnection:
         print("list_files", prefix)
         # try both ubuntu then darwin flags
         cmd = '[[ $(uname) == "Linux" ]] && ' \
-            'stat -c "%%n::%%s::%%Y" %s{,**}/* || ' \
-            'stat -f "%%N::%%z::%%m" %s{,**}/*' % (prefix, prefix)
+            'stat -c "%%n::%%s::%%Y" %s{,/**}/* || ' \
+            'stat -f "%%N::%%z::%%m" %s{,/**}/*' % (prefix, prefix)
         print(cmd)
         with subprocess.Popen([
             'ssh',
