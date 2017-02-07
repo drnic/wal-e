@@ -101,9 +101,9 @@ class RemoteServerConnection:
 
             print(files_info)
             if len(files_info) > 0:
-                print(FileRef(files_info).name)
-                print(FileRef(files_info).size)
-                print(FileRef(files_info).last_modified)
+                print(FileRef(files_info[0]).name)
+                print(FileRef(files_info[0]).size)
+                print(FileRef(files_info[0]).last_modified)
 
             return map(FileRef, files_info)
 
