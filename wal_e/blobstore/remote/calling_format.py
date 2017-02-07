@@ -12,6 +12,8 @@ class RemoteServerConnection:
         cmd = 'cat %s' % path
         proc = subprocess.Popen([
             'ssh',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
             '-i', self.creds.identity_file,
             '-p', self.creds.port,
             self.user_host, cmd], stdout=subprocess.PIPE)
@@ -27,6 +29,8 @@ class RemoteServerConnection:
             'stat -f "%%z" %s' % (dst_dir, dst_path, dst_path)
         with subprocess.Popen([
             'ssh',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
             '-i', self.creds.identity_file,
             '-p', self.creds.port,
             self.user_host,
@@ -62,6 +66,8 @@ class RemoteServerConnection:
         cmd = 'stat -f "%%N::%%z" %s**/*' % prefix
         with subprocess.Popen([
             'ssh',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
             '-i', self.creds.identity_file,
             '-p', self.creds.port,
             self.user_host, cmd], stdout=subprocess.PIPE) as proc:
