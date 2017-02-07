@@ -223,7 +223,7 @@ def _make_fixture_param_and_ids():
     if not gs_integration_help.no_real_gs_credentials():
         _add_config(GsTestConfig)
 
-    if not remote_integration_help.no_real_remote_credentials():
+    if remote_integration_help.remote_integration_tests_enabled():
         _add_config(RemoteTestConfig)
 
     if local_integration_help.local_integration_tests_enabled():

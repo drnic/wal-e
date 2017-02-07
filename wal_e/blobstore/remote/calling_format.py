@@ -1,5 +1,7 @@
 import subprocess
 
+from os.path import dirname
+
 
 class RemoteServerConnection:
     def __init__(self, creds):
@@ -14,6 +16,38 @@ class RemoteServerConnection:
 
         return proc.stdout
 
+    def put_file(self, fp, dst_path):
+        dst_dir = dirname(dst_path)
+
+        # stat -f %z returns the file size, which is wrapped in FileWrapper
+        cmd = 'mkdir -p %s && ' \
+            'cat > %s && ' \
+            'stat -f "%%z" %s' % (dst_dir, dst_path, dst_path)
+        print([
+            'ssh', '-i', self.creds.identity_file,
+            self.user_host,
+            cmd])
+        with subprocess.Popen([
+            'ssh', '-i', self.creds.identity_file,
+            self.user_host,
+            cmd], stdin=subprocess.PIPE, stdout=subprocess.PIPE) as proc:
+
+            try:
+                outs, errs = proc.communicate(input=fp.read(), timeout=15)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                outs, errs = proc.communicate()
+
+            if proc.returncode != 0:
+                raise SystemExit(proc.returncode)
+
+            class FileWrapper:
+                def __init__(self, size):
+                    self.size = size
+
+            size = int(outs.decode())
+            return FileWrapper(size)
+
     def list_files(self, prefix):
         '''
         $ stat -f "%N::%z" /path/to/storage/**/*
@@ -26,19 +60,19 @@ class RemoteServerConnection:
         /path/to/storage/basebackups_005/base_000000000000000000000000_00000000_backup_stop_sentinel.json::306
         '''
         cmd = 'stat -f "%%N::%%z" %s**/*' % prefix
-        proc = subprocess.Popen([
+        with subprocess.Popen([
             'ssh', '-i', self.creds.identity_file,
-            self.user_host, cmd], stdout=subprocess.PIPE)
+            self.user_host, cmd], stdout=subprocess.PIPE) as proc:
 
-        files_info = proc.stdout.read().decode().split('\n')[:-1]
+            files_info = proc.stdout.read().decode().split('\n')[:-1]
 
-        class FileRef:
-            def __init__(self, file_info):
-                items = file_info.split("::")
-                self.name = items[0]
-                self.last_modified = int(items[1])
+            class FileRef:
+                def __init__(self, file_info):
+                    items = file_info.split("::")
+                    self.name = items[0]
+                    self.last_modified = int(items[1])
 
-        return map(FileRef, files_info)
+            return map(FileRef, files_info)
 
 
 def connect(creds):

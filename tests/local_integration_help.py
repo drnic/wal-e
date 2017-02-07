@@ -20,7 +20,7 @@ def local_integration_tests_enabled():
 
 @pytest.fixture(scope='session')
 def default_test_folder():
-    return "/tmp/wal-e-testing/files/default_test_folder"
+    return "/tmp/wal-e-testing/local/default_test_folder"
 
 
 def apathetic_folder_delete(folder):
