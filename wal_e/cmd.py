@@ -559,6 +559,7 @@ def configure_backup_cxt(args):
             os.getenv('REMOTE_USER'),
             os.getenv('REMOTE_IDENTITY_FILE'),
             os.getenv('REMOTE_HOST'),
+            os.getenv('REMOTE_PORT'),
         )
 
         return RemoteBackup(store, creds, gpg_key_id)

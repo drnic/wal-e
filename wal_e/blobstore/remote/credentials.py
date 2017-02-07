@@ -4,10 +4,11 @@ logger = log_help.WalELogger(__name__)
 
 
 class Credentials(object):
-    def __init__(self, user, identity_file, host):
+    def __init__(self, user, identity_file, host, port):
         self.user = user
         self.identity_file = identity_file
         self.host = host
+        self.port = port or '22'
 
         if not self.user:
             logger.error(

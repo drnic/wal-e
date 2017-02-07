@@ -11,7 +11,9 @@ class RemoteServerConnection:
     def get_file(self, path):
         cmd = 'cat %s' % path
         proc = subprocess.Popen([
-            'ssh', '-i', self.creds.identity_file,
+            'ssh',
+            '-i', self.creds.identity_file,
+            '-p', self.creds.port,
             self.user_host, cmd], stdout=subprocess.PIPE)
 
         return proc.stdout
@@ -23,12 +25,10 @@ class RemoteServerConnection:
         cmd = 'mkdir -p %s && ' \
             'cat > %s && ' \
             'stat -f "%%z" %s' % (dst_dir, dst_path, dst_path)
-        print([
-            'ssh', '-i', self.creds.identity_file,
-            self.user_host,
-            cmd])
         with subprocess.Popen([
-            'ssh', '-i', self.creds.identity_file,
+            'ssh',
+            '-i', self.creds.identity_file,
+            '-p', self.creds.port,
             self.user_host,
             cmd], stdin=subprocess.PIPE, stdout=subprocess.PIPE) as proc:
 
@@ -61,7 +61,9 @@ class RemoteServerConnection:
         '''
         cmd = 'stat -f "%%N::%%z" %s**/*' % prefix
         with subprocess.Popen([
-            'ssh', '-i', self.creds.identity_file,
+            'ssh',
+            '-i', self.creds.identity_file,
+            '-p', self.creds.port,
             self.user_host, cmd], stdout=subprocess.PIPE) as proc:
 
             files_info = proc.stdout.read().decode().split('\n')[:-1]
