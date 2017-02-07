@@ -51,6 +51,8 @@ class Backup(object):
         import csv
         from wal_e.storage.base import BackupInfo
         bl = self._backup_list(detail)
+        print("backup_list", query, detail)
+        print("bl", bl)
 
         # If there is no query, return an exhaustive list, otherwise
         # find a backup instead.
@@ -64,6 +66,8 @@ class Backup(object):
         w_csv.writerow(BackupInfo._fields)
 
         for bi in bl_iter:
+            print(bi)
+            print([getattr(bi, k) for k in BackupInfo._fields])
             w_csv.writerow([getattr(bi, k) for k in BackupInfo._fields])
 
         sys.stdout.flush()

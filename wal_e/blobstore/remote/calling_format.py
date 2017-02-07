@@ -65,10 +65,20 @@ class RemoteServerConnection:
         /path/to/storage/basebackups_005/base_000000000000000000000000_00000000/tar_partitions/part_00000000.tar.lzo::1782
         /path/to/storage/basebackups_005/base_000000000000000000000000_00000000_backup_stop_sentinel.json::306
         '''
+
+        '''
+        TODO: This can happen:
+        stat: cannot stat '/data/backups/basebackups_005/**/*':
+            No such file or directory
+        stat: cannot read file system information for '%N::%z':
+            No such file or directory
+        stat: cannot read file system information for
+            '/data/backups/basebackups_005/**/*': No such file or directory
+        '''
         # try both ubuntu then darwin flags
         cmd = '[[ $(uname) == "Linux" ]] && ' \
-            'stat -c "%%n::%%s" %s**/* || ' \
-            'stat -f "%%N::%%z" %s**/*' % (prefix, prefix)
+            'stat -c "%%n::%%s::%%y" %s**/* || ' \
+            'stat -f "%%N::%%z::%%m" %s**/*' % (prefix, prefix)
         with subprocess.Popen([
             'ssh',
             '-o', 'StrictHostKeyChecking=no',
@@ -83,7 +93,8 @@ class RemoteServerConnection:
                 def __init__(self, file_info):
                     items = file_info.split("::")
                     self.name = items[0]
-                    self.last_modified = int(items[1])
+                    self.size = int(items[1])
+                    self.last_modified = items[2]
 
             return map(FileRef, files_info)
 

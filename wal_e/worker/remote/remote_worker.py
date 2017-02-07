@@ -85,6 +85,8 @@ class BackupList(_BackupList):
 
     def _backup_list(self, prefix):
         prefix = '/' + prefix
+        # TODO I think this result needs a .find_all(query)
+        print("_backup_list", prefix)
         return self.conn.list_files(prefix)
 
 
