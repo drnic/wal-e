@@ -66,20 +66,10 @@ class RemoteServerConnection:
         /path/to/storage/basebackups_005/base_000000000000000000000000_00000000_backup_stop_sentinel.json::306
         '''
 
-        '''
-        TODO: This can happen:
-        stat: cannot stat '/data/backups/basebackups_005/**/*':
-            No such file or directory
-        stat: cannot read file system information for '%N::%z':
-            No such file or directory
-        stat: cannot read file system information for
-            '/data/backups/basebackups_005/**/*': No such file or directory
-        '''
-
         # try both ubuntu then darwin flags
         cmd = 'if [[ -d %s ]]; then ' \
             '[[ $(uname) == "Linux" ]] && ' \
-            'stat -c "%%n::%%s::%%Y" %s**/* || ' \
+            'stat -c "%%n::%%s::%%Y" %s{,**/}* || ' \
             'stat -f "%%N::%%z::%%m" %s**/*; ' \
             'fi' % (prefix, prefix, prefix)
         print(cmd)
