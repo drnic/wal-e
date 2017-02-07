@@ -75,10 +75,13 @@ class RemoteServerConnection:
         stat: cannot read file system information for
             '/data/backups/basebackups_005/**/*': No such file or directory
         '''
+
+        print("list_files", prefix)
         # try both ubuntu then darwin flags
         cmd = '[[ $(uname) == "Linux" ]] && ' \
             'stat -c "%%n::%%s::%%y" %s**/* || ' \
             'stat -f "%%N::%%z::%%m" %s**/*' % (prefix, prefix)
+        print(cmd)
         with subprocess.Popen([
             'ssh',
             '-o', 'StrictHostKeyChecking=no',
@@ -88,6 +91,7 @@ class RemoteServerConnection:
 
             stdout = proc.stdout.read().decode()
             files_info = stdout.split('\n')[:-1]
+            print(files_info)
 
             class FileRef:
                 def __init__(self, file_info):
