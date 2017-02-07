@@ -56,7 +56,7 @@ class RemoteServerConnection:
 
     def list_files(self, prefix):
         '''
-        $ stat -c "%n::%s" /path/to/storage/**/*
+        $ stat -c "%n::%s" /path/to/storage/{,**}/*
         /path/to/storage::102
         /path/to/storage/basebackups_005::136
         /path/to/storage/basebackups_005/base_000000000000000000000000_00000000::136
@@ -79,8 +79,8 @@ class RemoteServerConnection:
         print("list_files", prefix)
         # try both ubuntu then darwin flags
         cmd = '[[ $(uname) == "Linux" ]] && ' \
-            'stat -c "%%n::%%s::%%Y" %s**/* || ' \
-            'stat -f "%%N::%%z::%%m" %s**/*' % (prefix, prefix)
+            'stat -c "%%n::%%s::%%Y" %s{,**}/* || ' \
+            'stat -f "%%N::%%z::%%m" %s{,**}/*' % (prefix, prefix)
         print(cmd)
         with subprocess.Popen([
             'ssh',
