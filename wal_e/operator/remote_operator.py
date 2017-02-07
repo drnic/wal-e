@@ -12,8 +12,6 @@ class RemoteBackup(Backup):
     """
     def __init__(self, layout, creds, gpg_key_id):
         super(RemoteBackup, self).__init__(layout, creds, gpg_key_id)
-        url_tup = urlparse(layout.prefix)
-        print("RemoteBackup", url_tup)
-        self.url_tup = url_tup
+        self.url_tup = urlparse(layout.prefix)
         self.cinfo = calling_format
         self.worker = remote_worker

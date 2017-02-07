@@ -23,10 +23,14 @@ class RemoteServerConnection:
     def put_file(self, fp, dst_path):
         dst_dir = dirname(dst_path)
 
-        # stat -f %z returns the file size, which is wrapped in FileWrapper
+        # stat -c %s returns the file size, which is wrapped in FileWrapper
+        #   ubuntu: -c %s
+        #   darwin: -f %z
         cmd = 'mkdir -p %s && ' \
             'cat > %s && ' \
-            'stat -f "%%z" %s' % (dst_dir, dst_path, dst_path)
+            '[[ $(uname) == "Linux" ]] && ' \
+            'stat -c "%%s" %s || ' \
+            'stat -f "%%z" %s' % (dst_dir, dst_path, dst_path, dst_path)
         with subprocess.Popen([
             'ssh',
             '-o', 'StrictHostKeyChecking=no',
@@ -54,7 +58,7 @@ class RemoteServerConnection:
 
     def list_files(self, prefix):
         '''
-        $ stat -f "%N::%z" /path/to/storage/**/*
+        $ stat -c "%n::%s" /path/to/storage/**/*
         /path/to/storage::102
         /path/to/storage/basebackups_005::136
         /path/to/storage/basebackups_005/base_000000000000000000000000_00000000::136
@@ -63,7 +67,10 @@ class RemoteServerConnection:
         /path/to/storage/basebackups_005/base_000000000000000000000000_00000000/tar_partitions/part_00000000.tar.lzo::1782
         /path/to/storage/basebackups_005/base_000000000000000000000000_00000000_backup_stop_sentinel.json::306
         '''
-        cmd = 'stat -f "%%N::%%z" %s**/*' % prefix
+        # try both ubuntu then darwin flags
+        cmd = '[[ $(uname) == "Linux" ]] && ' \
+            'stat -c "%%n::%%s" %s**/* || ' \
+            'stat -f "%%N::%%z" %s**/*' % (prefix, prefix)
         with subprocess.Popen([
             'ssh',
             '-o', 'StrictHostKeyChecking=no',
@@ -72,7 +79,10 @@ class RemoteServerConnection:
             '-p', self.creds.port,
             self.user_host, cmd], stdout=subprocess.PIPE) as proc:
 
-            files_info = proc.stdout.read().decode().split('\n')[:-1]
+            stdout = proc.stdout.read().decode()
+            print(cmd)
+            print(stdout)
+            files_info = stdout.split('\n')[:-1]
 
             class FileRef:
                 def __init__(self, file_info):
