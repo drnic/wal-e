@@ -82,6 +82,7 @@ class RemoteServerConnection:
             'stat -c "%%n::%%s::%%Y" %s**/* || ' \
             'stat -f "%%N::%%z::%%m" %s**/*; ' \
             'fi' % (prefix, prefix, prefix)
+        print(cmd)
         with subprocess.Popen([
             'ssh',
             '-o', 'StrictHostKeyChecking=no',
@@ -91,6 +92,7 @@ class RemoteServerConnection:
 
             stdout = proc.stdout.read().decode()
             files_info = stdout.split('\n')[:-1]
+            print(files_info)
 
             class FileRef:
                 def __init__(self, file_info):
