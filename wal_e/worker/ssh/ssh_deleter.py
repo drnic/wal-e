@@ -10,7 +10,7 @@ class Deleter(_Deleter):
 
     @retries.retry()
     def _delete_batch(self, page):
-        # TODO remote.Deleter._delete_batch
+        # TODO ssh.Deleter._delete_batch
         # envdir /etc/wal-e.d/env/ wal-e delete --confirm everything
         print("_delete_batch", page)
         for blob in page:

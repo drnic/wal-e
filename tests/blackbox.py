@@ -3,7 +3,7 @@ import os
 import pytest
 import s3_integration_help
 import local_integration_help
-import remote_integration_help
+import ssh_integration_help
 import sys
 
 from wal_e import cmd
@@ -14,8 +14,8 @@ _PREFIX_VARS = ['WALE_S3_PREFIX', 'WALE_WABS_PREFIX', 'WALE_SWIFT_PREFIX',
 _AWS_CRED_ENV_VARS = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY',
                       'AWS_SECURITY_TOKEN', 'AWS_REGION']
 _GS_CRED_ENV_VARS = ['GOOGLE_APPLICATION_CREDENTIALS']
-_REMOTE_CRED_ENV_VARS = ['REMOTE_USER', 'REMOTE_IDENTITY_FILE', 'REMOTE_HOST',
-                         'REMOTE_PORT']
+_SSH_CRED_ENV_VARS = ['SSH_USER', 'SSH_IDENTITY_FILE', 'SSH_HOST',
+                         'SSH_PORT']
 
 
 class AwsTestConfig(object):
@@ -181,14 +181,14 @@ class LocalTestConfig(object):
 
 
 class RemoteTestConfig(object):
-    name = 'remote'
+    name = 'ssh'
 
     def __init__(self, request):
         self.env_vars = {}
         self.monkeypatch = request.getfuncargvalue('monkeypatch')
-        self.remote_server = request.getfuncargvalue('test_remote_server')
+        self.ssh_server = request.getfuncargvalue('test_ssh_server')
 
-        for name in _REMOTE_CRED_ENV_VARS:
+        for name in _SSH_CRED_ENV_VARS:
             maybe_value = os.getenv(name)
             self.env_vars[name] = maybe_value
 
@@ -198,8 +198,8 @@ class RemoteTestConfig(object):
         for name in _PREFIX_VARS:
             self.monkeypatch.delenv(name, raising=False)
 
-        self.monkeypatch.setenv('WALE_REMOTE_PREFIX', 'remote://{0}/'
-                                .format(self.remote_server))
+        self.monkeypatch.setenv('WALE_SSH_PREFIX', 'ssh://{0}/'
+                                .format(self.ssh_server))
 
     def main(self, *args):
         self.monkeypatch.setattr(sys, 'argv', ['wal-e'] + list(args))
@@ -224,7 +224,7 @@ def _make_fixture_param_and_ids():
     if not gs_integration_help.no_real_gs_credentials():
         _add_config(GsTestConfig)
 
-    if remote_integration_help.remote_integration_tests_enabled():
+    if ssh_integration_help.ssh_integration_tests_enabled():
         _add_config(RemoteTestConfig)
 
     if local_integration_help.local_integration_tests_enabled():

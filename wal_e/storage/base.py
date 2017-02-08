@@ -117,7 +117,7 @@ class SegmentNumber(collections.namedtuple('SegmentNumber',
 
 OBSOLETE_VERSIONS = frozenset(('004', '003', '002', '001', '000'))
 
-SUPPORTED_STORE_SCHEMES = ('s3', 'wabs', 'swift', 'gs', 'local', 'remote')
+SUPPORTED_STORE_SCHEMES = ('s3', 'wabs', 'swift', 'gs', 'local', 'ssh')
 
 
 # Exhaustively enumerates all possible metadata about a backup.  These
@@ -226,7 +226,7 @@ class StorageLayout(object):
                     'Google Cloud Storage URL, Local or Remote File '
                     'scheme passed',
                 detail='The scheme "{0}" was passed when "s3", "wabs", '
-                       '"swift",  "gs", "local", "remote" was '
+                       '"swift",  "gs", "local", "ssh" was '
                        'expected.'.format(url_tup.scheme))
 
         for scheme in SUPPORTED_STORE_SCHEMES:
@@ -335,7 +335,7 @@ def get_backup_info(layout, **kwargs):
     elif layout.is_local:
         from wal_e.storage.local_storage import LocalBackupInfo
         bi = LocalBackupInfo(**kwargs)
-    elif layout.is_remote:
-        from wal_e.storage.remote_storage import RemoteBackupInfo
+    elif layout.is_ssh:
+        from wal_e.storage.ssh_storage import RemoteBackupInfo
         bi = RemoteBackupInfo(**kwargs)
     return bi

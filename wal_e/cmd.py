@@ -225,10 +225,10 @@ def build_parser():
                         'Can also be defined via environment variable '
                         'WALE_LOCAL_PREFIX.')
 
-    parser.add_argument('--remote-prefix',
-                        help='Use remote server for storage. '
+    parser.add_argument('--ssh-prefix',
+                        help='Use ssh server for storage. '
                         'Can also be defined via environment variable '
-                        'WALE_REMOTE_PREFIX.')
+                        'WALE_SSH_PREFIX.')
 
     parser.add_argument(
         '--gpg-key-id',
@@ -456,21 +456,21 @@ def gs_creds(args):
 def configure_backup_cxt(args):
     # Try to find some WAL-E prefix to store data in.
     prefix = (args.s3_prefix or args.wabs_prefix or args.gs_prefix
-              or args.local_prefix or args.remote_prefix
+              or args.local_prefix or args.ssh_prefix
               or os.getenv('WALE_S3_PREFIX') or os.getenv('WALE_WABS_PREFIX')
               or os.getenv('WALE_GS_PREFIX') or os.getenv('WALE_SWIFT_PREFIX')
               or os.getenv('WALE_LOCAL_PREFIX')
-              or os.getenv('WALE_REMOTE_PREFIX'))
+              or os.getenv('WALE_SSH_PREFIX'))
 
     if prefix is None:
         raise UserException(
             msg='no storage prefix defined',
             hint=(
                 'Either set one of the --wabs-prefix, --s3-prefix, '
-                '--gs-prefix, --local-prefix, or --remote-prefix options '
+                '--gs-prefix, --local-prefix, or --ssh-prefix options '
                 'or define one of the '
                 'WALE_WABS_PREFIX, WALE_S3_PREFIX, WALE_SWIFT_PREFIX, '
-                'WALE_GS_PREFIX, WALE_LOCAL_PREFIX, or WALE_REMOTE_PREFIX '
+                'WALE_GS_PREFIX, WALE_LOCAL_PREFIX, or WALE_SSH_PREFIX '
                 'environment variables.'
             )
         )
@@ -552,14 +552,14 @@ def configure_backup_cxt(args):
     elif store.is_local:
         from wal_e.operator.local_operator import LocalBackup
         return LocalBackup(store, gpg_key_id)
-    elif store.is_remote:
-        from wal_e.blobstore import remote
-        from wal_e.operator.remote_operator import RemoteBackup
-        creds = remote.Credentials(
-            os.getenv('REMOTE_USER'),
-            os.getenv('REMOTE_IDENTITY_FILE'),
-            os.getenv('REMOTE_HOST'),
-            os.getenv('REMOTE_PORT'),
+    elif store.is_ssh:
+        from wal_e.blobstore import ssh
+        from wal_e.operator.ssh_operator import RemoteBackup
+        creds = ssh.Credentials(
+            os.getenv('SSH_USER'),
+            os.getenv('SSH_IDENTITY_FILE'),
+            os.getenv('SSH_HOST'),
+            os.getenv('SSH_PORT'),
         )
 
         return RemoteBackup(store, creds, gpg_key_id)

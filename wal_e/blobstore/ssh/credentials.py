@@ -12,15 +12,15 @@ class Credentials(object):
 
         if not self.user:
             logger.error(
-                msg=('remote strategy requires user'),
-                hint=('Pass in via REMOTE_USER env var.'))
+                msg=('ssh strategy requires user'),
+                hint=('Pass in via SSH_USER env var.'))
 
         if not self.identity_file:
             logger.error(
-                msg=('remote strategy requires identity file'),
-                hint=('Pass in via REMOTE_IDENTITY_FILE env var.'))
+                msg=('ssh strategy requires identity file'),
+                hint=('Pass in via SSH_IDENTITY_FILE env var.'))
 
         if not self.host:
             logger.error(
-                msg=('remote strategy requires host'),
-                hint=('Pass in via REMOTE_HOST env var.'))
+                msg=('ssh strategy requires host'),
+                hint=('Pass in via SSH_HOST env var.'))

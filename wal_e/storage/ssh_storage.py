@@ -1,6 +1,6 @@
 import json
 
-from wal_e.blobstore import remote
+from wal_e.blobstore import ssh
 from wal_e.storage.base import BackupInfo
 
 
@@ -15,7 +15,7 @@ class RemoteBackupInfo(BackupInfo):
             netloc=self.layout.store_name(),
             path=self.layout.basebackup_sentinel(self))
 
-        data = json.loads(remote.uri_get_file(None, uri, conn=conn)
+        data = json.loads(ssh.uri_get_file(None, uri, conn=conn)
                           .decode('utf-8'))
         for k, v in list(data.items()):
             setattr(self, k, v)

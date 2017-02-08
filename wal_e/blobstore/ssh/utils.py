@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 
 from wal_e import files
 from wal_e import log_help
-from wal_e.blobstore.remote import calling_format
+from wal_e.blobstore.ssh import calling_format
 from wal_e.pipeline import get_download_pipeline
 from wal_e.piper import PIPE
 
@@ -13,7 +13,7 @@ logger = log_help.WalELogger(__name__)
 
 def uri_put_file(creds, uri, fp, content_type=None):
     assert fp.tell() == 0
-    assert uri.startswith('remote://')
+    assert uri.startswith('ssh://')
 
     dst_path = urlparse(uri).path
 
@@ -30,7 +30,7 @@ def do_lzop_get(creds, uri, path, decrypt, do_retry=True):
 
     """
     assert uri.endswith('.lzo'), 'Expect an lzop-compressed file'
-    assert uri.startswith('remote://')
+    assert uri.startswith('ssh://')
 
     def download():
         conn = calling_format.connect(creds)
@@ -61,7 +61,7 @@ def do_lzop_get(creds, uri, path, decrypt, do_retry=True):
                     return False
 
             logger.info(
-                msg='completed remote file fetch and decompression',
+                msg='completed ssh file fetch and decompression',
                 detail='File downloaded and decompressed "{uri}" to "{path}"'
                 .format(uri=uri, path=path))
         return True
@@ -70,7 +70,7 @@ def do_lzop_get(creds, uri, path, decrypt, do_retry=True):
 
 
 def uri_get_file(creds, uri, conn=None):
-    assert uri.startswith('remote://')
+    assert uri.startswith('ssh://')
     object_path = urlparse(uri).path
 
     if conn is None:

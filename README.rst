@@ -250,7 +250,7 @@ can be used::
     /var/lib/my/database base_LONGWALNUMBER_POSITION_NUMBER"
 
 One can find the name of available backups via the experimental
-``backup-list`` operator, or using one's remote data store browsing
+``backup-list`` operator, or using one's ssh data store browsing
 program of choice, by looking at the ``PREFIX/basebackups_NNN/...``
 directory.
 
